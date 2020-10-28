@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 3.0.2)
-project(panda_moveit_config)
+cmake_minimum_required(VERSION 3.5)
+project(panda_moveit2_config)
 
-find_package(catkin REQUIRED)
+# Find dependencies
+find_package(ament_cmake REQUIRED)
 
-catkin_package()
+# Install directories
+install(DIRECTORY config srdf launch DESTINATION share/${PROJECT_NAME})
 
-install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  PATTERN "setup_assistant.launch" EXCLUDE)
-install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+# Setup the project
+ament_package()
