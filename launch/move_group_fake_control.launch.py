@@ -4,7 +4,9 @@ import os
 import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration
 
 
 def load_file(package_name, file_path):
@@ -30,6 +32,11 @@ def load_yaml(package_name, file_path):
 
 
 def generate_launch_description():
+    # Launch Arguments
+    use_sim_time = LaunchConfiguration("use_sim_time", default=False)
+    config_rviz2 = LaunchConfiguration("config_rviz2", default=os.path.join(get_package_share_directory("panda_moveit2_config"),
+                                                                            "launch", "rviz_interactive.rviz"))
+
     # URDF
     robot_urdf_config = load_file("panda_ign",
                                   "urdf/panda.urdf")
@@ -73,6 +80,16 @@ def generate_launch_description():
                                          "publish_transforms_updates": True}
 
     return LaunchDescription([
+        # Launch Arguments
+        DeclareLaunchArgument(
+            "use_sim_time",
+            default_value=use_sim_time,
+            description="If true, use simulated clock"),
+        DeclareLaunchArgument(
+            "config_rviz2",
+            default_value=config_rviz2,
+            description="Path to config for RViz2"),
+
         # Start move_group action server
         Node(package="moveit_ros_move_group",
              executable="move_group",
@@ -84,21 +101,26 @@ def generate_launch_description():
                          planning,
                          trajectory_execution,
                          moveit_controllers,
-                         planning_scene_monitor_parameters]),
+                         planning_scene_monitor_parameters,
+                         {"use_sim_time": use_sim_time}]),
 
         # Static TF
         Node(package="tf2_ros",
              executable="static_transform_publisher",
-             name="static_transform_publisher_world_robot",
-             output="screen",
-             arguments=["0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "world", "panda_link0"]),
+             name="static_transform_publisher_world_panda",
+             output="log",
+             arguments=["0.0", "0.0", "0.0",
+                        "0.0", "0.0", "0.0",
+                        "world", "panda_link0"],
+             parameters=[{"use_sim_time": use_sim_time}]),
 
         # Robot state publisher
         Node(package="robot_state_publisher",
              executable="robot_state_publisher",
              name="robot_state_publisher",
              output="screen",
-             parameters=[robot_description]),
+             parameters=[robot_description,
+                         {"use_sim_time": use_sim_time}]),
 
         # Fake joint driver
         Node(package="fake_joint_driver",
@@ -108,18 +130,18 @@ def generate_launch_description():
                          os.path.join(get_package_share_directory(
                              "panda_moveit2_config"), "config", "fake_control", "panda_arm_controller.yaml"),
                          os.path.join(get_package_share_directory(
-                             "panda_moveit2_config"), "config", "fake_control", "start_position.yaml")]),
+                             "panda_moveit2_config"), "config", "fake_control", "start_position.yaml"),
+                         {"use_sim_time": use_sim_time}]),
 
         # RViz2
         Node(package="rviz2",
              executable="rviz2",
              name="rviz2",
              output="log",
-             arguments=["-d",
-                        os.path.join(get_package_share_directory("panda_moveit2_config"),
-                                     "launch", "rviz_interactive.rviz")],
+             arguments=["--display-config", config_rviz2],
              parameters=[robot_description,
                          robot_description_semantic,
                          kinematics,
-                         planning])
+                         planning,
+                         {"use_sim_time": use_sim_time}])
     ])

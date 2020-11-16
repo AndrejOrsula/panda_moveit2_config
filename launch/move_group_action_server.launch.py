@@ -33,8 +33,8 @@ def load_yaml(package_name, file_path):
 
 def generate_launch_description():
     # Launch Arguments
-    use_sim_time = LaunchConfiguration('use_sim_time', default=False)
-    config_rviz2 = LaunchConfiguration('config_rviz2', default=os.path.join(get_package_share_directory("panda_moveit2_config"),
+    use_sim_time = LaunchConfiguration("use_sim_time", default=False)
+    config_rviz2 = LaunchConfiguration("config_rviz2", default=os.path.join(get_package_share_directory("panda_moveit2_config"),
                                                                             "launch", "rviz.rviz"))
 
     # URDF
@@ -73,13 +73,13 @@ def generate_launch_description():
     return LaunchDescription([
         # Launch Arguments
         DeclareLaunchArgument(
-            'use_sim_time',
+            "use_sim_time",
             default_value=use_sim_time,
-            description='If true, use simulated clock'),
+            description="If true, use simulated clock"),
         DeclareLaunchArgument(
-            'config_rviz2',
+            "config_rviz2",
             default_value=config_rviz2,
-            description='Path to config for RViz2'),
+            description="Path to config for RViz2"),
 
         # Start move_group action server
         Node(package="moveit_ros_move_group",
@@ -92,17 +92,17 @@ def generate_launch_description():
                          planning,
                          trajectory_execution,
                          planning_scene_monitor_parameters,
-                         {'use_sim_time': use_sim_time}]),
+                         {"use_sim_time": use_sim_time}]),
 
         # RViz2
         Node(package="rviz2",
              executable="rviz2",
              name="rviz2",
              output="log",
-             arguments=['--display-config', config_rviz2],
+             arguments=["--display-config", config_rviz2],
              parameters=[robot_description,
                          robot_description_semantic,
                          kinematics,
                          planning,
-                         {'use_sim_time': use_sim_time}])
+                         {"use_sim_time": use_sim_time}])
     ])
