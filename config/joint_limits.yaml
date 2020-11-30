@@ -1,0 +1,46 @@
+joint_limits:
+  panda_joint1:
+    has_velocity_limits: true
+    max_velocity: 2.5
+    has_acceleration_limits: true
+    max_acceleration: 3.25
+  panda_joint2:
+    has_velocity_limits: true
+    max_velocity: 2.5
+    has_acceleration_limits: true
+    max_acceleration: 4.25
+  panda_joint3:
+    has_velocity_limits: true
+    max_velocity: 2.5
+    has_acceleration_limits: true
+    max_acceleration: 4.25
+  panda_joint4:
+    has_velocity_limits: true
+    max_velocity: 2.5
+    has_acceleration_limits: true
+    max_acceleration: 4.25
+  panda_joint5:
+    has_velocity_limits: true
+    max_velocity: 3.0
+    has_acceleration_limits: true
+    max_acceleration: 4.5
+  panda_joint6:
+    has_velocity_limits: true
+    max_velocity: 3.0
+    has_acceleration_limits: true
+    max_acceleration: 4.5
+  panda_joint7:
+    has_velocity_limits: true
+    max_velocity: 3.0
+    has_acceleration_limits: true
+    max_acceleration: 4.5
+  panda_finger_joint1:
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.75
+  panda_finger_joint2:
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.75

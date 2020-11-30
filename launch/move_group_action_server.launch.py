@@ -51,6 +51,11 @@ def generate_launch_description():
     kinematics = load_yaml("panda_moveit2_config",
                            "config/kinematics.yaml")
 
+    # Joint limits
+    joint_limits_yaml = load_yaml("panda_moveit2_config",
+                           "config/joint_limits.yaml")
+    joint_limits = {"robot_description_planning": joint_limits_yaml}
+
     # Planning
     ompl_yaml = load_yaml("panda_moveit2_config",
                           "config/ompl_planning.yaml")
@@ -88,6 +93,7 @@ def generate_launch_description():
              parameters=[robot_description,
                          robot_description_semantic,
                          kinematics,
+                         joint_limits,
                          planning,
                          ompl_yaml,
                          trajectory_execution,
