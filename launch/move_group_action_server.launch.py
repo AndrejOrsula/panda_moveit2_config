@@ -4,7 +4,7 @@ import os
 import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 
@@ -31,7 +31,7 @@ def load_yaml(package_name, file_path):
         return None
 
 
-def generate_launch_description():
+def launch_setup(context, *args, **kwargs):
     # Launch Arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default=False)
     config_rviz2 = LaunchConfiguration('config_rviz2', default=os.path.join(get_package_share_directory('panda_moveit2_config'),
@@ -75,7 +75,7 @@ def generate_launch_description():
                                          'publish_state_updates': True,
                                          'publish_transforms_updates': True}
 
-    return LaunchDescription([
+    launch_description = [
         # Launch Arguments
         DeclareLaunchArgument(
             'use_sim_time',
@@ -84,7 +84,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'config_rviz2',
             default_value=config_rviz2,
-            description="Path to config for RViz2"),
+            description="Path to config for RViz2. If empty, RViz2 will be disabled"),
         DeclareLaunchArgument(
             'log_level',
             default_value=log_level,
@@ -105,17 +105,27 @@ def generate_launch_description():
                          trajectory_execution,
                          planning_scene_monitor_parameters,
                          {'use_sim_time': use_sim_time}]),
+    ]
 
-        # RViz2
-        Node(package='rviz2',
-             executable='rviz2',
-             name='rviz2',
-             output='log',
-             arguments=['--display-config', config_rviz2,
-                        '--ros-args', '--log-level', log_level],
-             parameters=[robot_description,
-                         robot_description_semantic,
-                         kinematics,
-                         planning,
-                         {'use_sim_time': use_sim_time}])
-    ])
+    # Add RViz2 (if enabled)
+    if config_rviz2.perform(context):
+        launch_description.append(
+            Node(package='rviz2',
+                 executable='rviz2',
+                 name='rviz2',
+                 output='log',
+                 arguments=['--display-config', config_rviz2,
+                            '--ros-args', '--log-level', log_level],
+                 parameters=[robot_description,
+                             robot_description_semantic,
+                             kinematics,
+                             planning,
+                             {'use_sim_time': use_sim_time}])
+        )
+
+    return launch_description
+
+
+def generate_launch_description():
+    # OpaqueFunction is used here because `config_rviz2` needs to be evaluated to determine whether RViz2 is launched or not
+    return LaunchDescription([OpaqueFunction(function=launch_setup)])
